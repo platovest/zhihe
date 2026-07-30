@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-sans: "PingFang SC";
+  --font-serif: "Songti SC";
   --ink: #18201e;
   --forest: #24463f;
   --forest-deep: #17342e;
