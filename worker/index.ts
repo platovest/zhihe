@@ -2,6 +2,7 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { handleApi, type ApiEnv } from "../lib/api";
+import { handleCommerce } from "../lib/commerce";
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -40,6 +41,10 @@ const worker = {
           return result.response();
         },
       }, allowedWidths);
+    }
+
+    if (url.pathname === "/api/catalog" || url.pathname.startsWith("/api/lessons/") || url.pathname.startsWith("/api/commerce/") || url.pathname === "/api/admin/commerce" || url.pathname.startsWith("/api/admin/commerce/")) {
+      return handleCommerce(request, env);
     }
 
     if (url.pathname === "/api/interest" || url.pathname === "/api/events" || url.pathname.startsWith("/api/admin/")) {

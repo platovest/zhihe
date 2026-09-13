@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import CommercePanel from './CommercePanel';
 
 type Summary = {
   total: number;
@@ -77,6 +78,7 @@ export default function AdminPage() {
           </td>
         </tr>)}</tbody>
       </table></div>
+      <CommercePanel token={token} />
     </>}
     <p role="status" aria-live="polite" style={{ marginTop: 16 }}>{message}</p>
   </main>;

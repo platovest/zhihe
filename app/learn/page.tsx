@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Lesson from "./Lesson";
+import Catalog from "./Catalog";
 import "./lesson.css";
 
 export const metadata: Metadata = {
-  title: "把需要说清楚 · 免费体验课 | 知合",
-  description: "约 6 分钟，学习从事实、感受与请求开始一次关系对话。含情境练习、知识检验与可下载练习卡。",
+  title: "七课关系练习室 | 知合",
+  description: "七节原创中文沟通课，含情境练习、知识检验与练习卡。本地内测，首课免费，后续课程通过模拟订单体验。",
 };
 
 export default function LearnPage() {
-  return <Lesson />;
+  return <Catalog />;
 }
