@@ -37,8 +37,9 @@ test("server-renders the complete conversion page", async () => {
   assert.match(html, /<title>知合 ZHIHE｜把亲密，讲清楚<\/title>/i);
   assert.match(html, /不用猜/);
   assert.match(html, /开始免费完整课/);
-  assert.match(html, /未来课程意向价/);
-  assert.match(html, /199/);
+  assert.match(html, /第 2–7 课付费/);
+  assert.match(html, /价格与币种待公布/);
+  assert.doesNotMatch(html, /演练|模拟|当前免费内测/);
   assert.match(html, /现在不会扣款/);
   assert.match(html, /不记录练习答案/);
   assert.match(html, /仅面向 18 岁以上成年人/);
@@ -77,7 +78,7 @@ test("persists a valid purchase intent without exposing its record", async (cont
       },
       body: JSON.stringify({
         email: "buyer@example.com",
-        offerId: "founding-199-v1",
+        offerId: "overseas-launch-v2",
         source: "research",
         consent: true,
         website: "",
@@ -102,7 +103,7 @@ test("rejects malformed interest before touching the database", async () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         email: "not-an-email",
-        offerId: "founding-199-v1",
+        offerId: "overseas-launch-v2",
         source: "direct",
         consent: true,
         website: "",

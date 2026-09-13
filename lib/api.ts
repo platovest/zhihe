@@ -2,7 +2,7 @@ import { EVENTS, deleteInterestById, exportIntents, hashToken, purgeExpired, rea
 import { handleInterestPost } from "./interest-handler";
 import { json, readJson, sameOrigin } from "./request";
 
-export type ApiEnv = { DB?: PurchaseIntentDatabase; ADMIN_TOKEN?: string };
+export type ApiEnv = { DB?: PurchaseIntentDatabase; ADMIN_TOKEN?: string; ENABLE_COMMERCE_SIMULATION?: string };
 // Bounded, process-local endpoint buckets. No IP or visitor ID is collected.
 // This protects a small local beta, not a distributed public service.
 const buckets = new Map<string, { start: number; count: number }>();

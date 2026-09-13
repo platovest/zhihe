@@ -171,7 +171,7 @@ export function ZhiheExperience() {
             <Link className="primary-button action-link" href="/learn/expression">开始免费完整课 <span aria-hidden="true">→</span></Link>
             <span className="quiet-note">非露骨内容 · 不记录练习答案</span>
           </div>
-          <p className="beta-note">七课内容草稿已备齐 · 第 1 课直接免费 · 后六课通过本地演练开通</p>
+          <p className="beta-note">第 1 课完整免费 · 第 2–7 课付费 · 购买暂未开放</p>
         </div>
 
         <div className="hero-art" aria-label="两个人靠近时形成的交叠圆形">
@@ -253,7 +253,7 @@ export function ZhiheExperience() {
           <p className="section-number">首季课程 / SEASON 01</p>
           <h2>从难开口，<br />到说得清。</h2>
           <p>
-            七节完整内容草稿均可学习，尚待独立专业审阅。第 1 课直接免费；后六课通过本地模拟订单体验开通，不扣款。可以独自学习，不必分享私密答案。
+            第 1 课完整免费，含练习、解析与练习卡。第 2–7 课为付费课程，购买后继续学习，目前暂未开放购买。可以独自学习，不必分享私密答案；内容尚待独立专业审阅。
           </p>
         </div>
         <ol className="lesson-list">
@@ -264,7 +264,7 @@ export function ZhiheExperience() {
                 <h3><Link href={`/learn/${lessonSlugs[Number(number)-1]}`}>{title} →</Link></h3>
                 <p>{description}</p>
               </div>
-              <span className="lesson-duration">{number === '01' ? '免费开放' : '演练开通'}</span>
+              <span className="lesson-duration">{number === '01' ? '免费学习' : '付费课程'}</span>
             </li>
           ))}
         </ol>
@@ -302,23 +302,22 @@ export function ZhiheExperience() {
           <div className="offer-copy">
             <p className="section-number">创始会员 / FOUNDING ACCESS</p>
             <h2>把猜测，换成一次好好说话。</h2>
-            <p>首季 7 节内容草稿 + 各课练习卡 · 正式课程购买意向调研</p>
+            <p>1 节免费课 + 6 节付费课 · 各课独立练习卡</p>
             <ul>
               <li>可独自学习，也可与一位伴侣共用</li>
-              <li>已可本地模拟开通，未开放真实购买</li>
+              <li>第 1 课完整免费，后 6 课购买后学习</li>
               <li>无订阅、无自动续费、无隐藏收费</li>
             </ul>
-            <p><Link className="primary-button action-link" href="/checkout">体验本地订单与权益演练 →</Link></p>
+            <p><Link className="primary-button action-link" href="/checkout">查看购买方案 →</Link></p>
           </div>
           <div className="price-block">
-            <span className="price-label">首轮内测价</span>
+            <span className="price-label">首季付费课程</span>
             <div className="price">
-              <sup>¥</sup>
-              <strong>199</strong>
+              <strong>6</strong><sup>节</sup>
             </div>
-            <span className="price-anchor">未来课程意向价 · 当前免费内测</span>
+            <span className="price-anchor">价格与币种待公布 · 暂未开放购买</span>
             <button className="offer-button" onClick={openOffer}>
-              登记购买意向 <span aria-hidden="true">→</span>
+              登记开放通知 <span aria-hidden="true">→</span>
             </button>
             <small>现在不会扣款。可自愿留下联系方式供人工跟进。</small>
           </div>
@@ -397,9 +396,9 @@ export function ZhiheExperience() {
             ) : (
               <>
                 <p className="section-number">一个真实的问题</p>
-                <h2 id="intent-title">如果正式开放，你愿意用 ¥199 购买首季七课吗？</h2>
+                <h2 id="intent-title">愿意在课程开放购买时收到通知吗？</h2>
                 <p className="modal-copy">
-                  这是正式课程的联络意向登记，不会扣款，也不会开通演练权益。你的反馈帮助我们决定下一步是否投入专业审阅与正式交付。
+                  第 1 课免费，其余 6 课收费，正式价格与币种尚未确定。这只是课程开放通知登记，不会扣款，也不会解锁付费课程；是否购买由你在正式开放后决定。
                 </p>
 
                 {!showEmail ? (

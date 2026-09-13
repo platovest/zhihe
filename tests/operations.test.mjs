@@ -7,7 +7,7 @@ import { openDatabase } from "./sqlite-database.mjs";
 
 const { default: worker } = await import("../dist/server/index.js");
 const adminToken = "test-only-admin-token-at-least-32-characters";
-const valid = { email: "buyer@example.com", offerId: "founding-199-v1", source: "direct", consent: true, website: "" };
+const valid = { email: "buyer@example.com", offerId: "overseas-launch-v2", source: "direct", consent: true, website: "" };
 const auth = { authorization: `Bearer ${adminToken}` };
 function api(database, path, method = "GET", body, headers = {}, token = adminToken) {
   return worker.fetch(new Request(`http://localhost${path}`, { method, headers: { "content-type": "application/json", ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }), { DB: database, ADMIN_TOKEN: token }, { waitUntil() {}, passThroughOnException() {} });

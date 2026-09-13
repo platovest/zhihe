@@ -34,8 +34,8 @@ test("SQLite snapshot restores real interest, order and entitlement data and ref
     method: body ? "POST" : "GET",
     headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
-  }), { DB: db }, { waitUntil() {}, passThroughOnException() {} });
-  const interest = await api(database, "/api/interest", { email: "restore@example.com", offerId: "founding-199-v1", source: "direct", consent: true, website: "" });
+  }), { DB: db, ENABLE_COMMERCE_SIMULATION: "true" }, { waitUntil() {}, passThroughOnException() {} });
+  const interest = await api(database, "/api/interest", { email: "restore@example.com", offerId: "overseas-launch-v2", source: "direct", consent: true, website: "" });
   assert.equal(interest.status, 200);
   const created = await api(database, "/api/commerce/orders", { consent: true, idempotencyKey: crypto.randomUUID() });
   assert.equal(created.status, 200);

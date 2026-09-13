@@ -32,6 +32,20 @@ export async function handleCommerce(request: Request, env: ApiEnv): Promise<Res
   if (!sameOrigin(request)) return reply({ ok: false, error: "cross_origin" }, 403);
   if (!allowRequest("commerce", Date.now(), 240)) return reply({ ok: false, error: "rate_limited" }, 429, { "retry-after": "60" });
   const admin = url.pathname.startsWith("/api/admin/commerce");
+  // Test-only orders must never grant customer access. This flag is reserved
+  // for isolated engineering tests, not the normal local product.
+  if (!admin && env.ENABLE_COMMERCE_SIMULATION !== "true") {
+    const mode = "paid_courses";
+    if (url.pathname === "/api/catalog" && request.method === "GET") return reply({ mode, ok: true, lessons: catalog });
+    if (url.pathname.startsWith("/api/lessons/") && request.method === "GET") {
+      const lesson = lessons.find((item) => item.slug === url.pathname.slice("/api/lessons/".length));
+      if (!lesson) return reply({ mode, ok: false, error: "not_found" }, 404);
+      if (lesson.slug === "expression") return reply({ mode, ok: true, lesson });
+      return reply({ mode, ok: false, error: "purchase_required" }, 403);
+    }
+    if (url.pathname === "/api/commerce/me" && request.method === "GET") return reply({ mode, ok: true, orders: [], access: false, paymentAvailable: false });
+    return reply({ mode, ok: false, error: "payment_unavailable" }, 503);
+  }
   if (admin) {
     if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 32) return reply({ ok: false, error: "admin_not_configured" }, 503);
     const supplied = request.headers.get("authorization")?.match(/^Bearer (\S+)$/)?.[1] ?? "";

@@ -1,4 +1,4 @@
-export const OFFER_ID = "founding-199-v1";
+export const OFFER_ID = "overseas-launch-v2";
 export const CONSENT_VERSION = "2026-09-13";
 
 const allowedSources = new Set(["direct", "organic", "partner", "research"]);

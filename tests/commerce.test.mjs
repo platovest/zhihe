@@ -14,7 +14,7 @@ function api(database, path, { method = "GET", body, cookie, headers = {}, host 
   return worker.fetch(new Request(`http://${host}${path}`, {
     method, headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}), ...headers },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  }), { DB: database, ADMIN_TOKEN: token }, ctx);
+  }), { DB: database, ADMIN_TOKEN: token, ENABLE_COMMERCE_SIMULATION: "true" }, ctx);
 }
 async function fixture(context) {
   const directory = await mkdtemp(join(tmpdir(), "zhihe-commerce-test-"));

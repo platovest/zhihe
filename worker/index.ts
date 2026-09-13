@@ -8,6 +8,7 @@ interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   DB: NonNullable<ApiEnv["DB"]>;
   ADMIN_TOKEN?: string;
+  ENABLE_COMMERCE_SIMULATION?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {

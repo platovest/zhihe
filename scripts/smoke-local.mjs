@@ -31,7 +31,7 @@ if (phase === 'create') {
   assert.equal(card.status, 200);
   assert.match(await card.text(), /知合/);
   const email = `qa-${randomUUID()}@example.com`;
-  const response = await request('/api/interest', 'POST', {email, offerId:'founding-199-v1', source:'research', consent:true, website:''});
+  const response = await request('/api/interest', 'POST', {email, offerId:'overseas-launch-v2', source:'research', consent:true, website:''});
   assert.equal(response.status, 200);
   const {withdrawalToken} = await response.json();
   assert.match(withdrawalToken, /^[a-f0-9]{64}$/);
