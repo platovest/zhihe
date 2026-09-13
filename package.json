@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
@@ -11,6 +11,8 @@
     "start": "NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1 WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "admin:init": "node scripts/init-admin.mjs",
+    "typecheck": "tsc --noEmit --incremental false",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

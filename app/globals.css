@@ -177,6 +177,18 @@ button {
     box-shadow 180ms ease;
 }
 
+.action-link { display: inline-flex; align-items: center; text-decoration: none; }
+.beta-note { color: var(--muted); font-size: 13px; margin-top: 22px; }
+.analytics-choice { display: flex; align-items: start; gap: 10px; margin-top: 24px; color: #d1dbd5; font-size: 12px; line-height: 1.7; }
+.analytics-choice input { min-width: 20px; height: 20px; accent-color: var(--coral); }
+.receipt { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-family: monospace; font-size: 13px; }
+.privacy-page { max-width: 800px; margin: 0 auto; padding: 48px 24px 90px; line-height: 1.9; }
+.privacy-page h1 { font-size: 36px; margin: 28px 0; }
+.privacy-page h2 { font-size: 22px; margin-top: 32px; }
+.privacy-page input { width: 100%; padding: 14px; background: var(--white); border: 1px solid var(--line); border-radius: 10px; }
+.privacy-page button { display: block; margin-top: 16px; }
+.privacy-page a, .preview-complete a, .lesson-list a, .intent-modal a { color: var(--forest); text-underline-offset: 4px; }
+
 .primary-button:hover,
 .offer-button:hover {
   transform: translateY(-2px);

@@ -1,5 +1,5 @@
 export const OFFER_ID = "founding-199-v1";
-export const CONSENT_VERSION = "2026-07-30";
+export const CONSENT_VERSION = "2026-09-13";
 
 const allowedSources = new Set(["direct", "organic", "partner", "research"]);
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

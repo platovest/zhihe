@@ -1,11 +1,12 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
-import { handleInterestPost } from "../lib/interest-handler";
+import { handleApi, type ApiEnv } from "../lib/api";
 
 interface Env {
-  ASSETS: Fetcher;
-  DB: D1Database;
+  ASSETS: { fetch(request: Request): Promise<Response> };
+  DB: NonNullable<ApiEnv["DB"]>;
+  ADMIN_TOKEN?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -41,14 +42,8 @@ const worker = {
       }, allowedWidths);
     }
 
-    if (url.pathname === "/api/interest") {
-      if (request.method !== "POST") {
-        return Response.json(
-          { ok: false },
-          { status: 405, headers: { allow: "POST" } },
-        );
-      }
-      return handleInterestPost(request, env.DB);
+    if (url.pathname === "/api/interest" || url.pathname === "/api/events" || url.pathname.startsWith("/api/admin/")) {
+      return handleApi(request, env);
     }
 
     return handler.fetch(request, env, ctx);

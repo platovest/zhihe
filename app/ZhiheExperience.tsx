@@ -54,6 +54,8 @@ export function ZhiheExperience() {
   const [showEmail, setShowEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  const [withdrawalToken, setWithdrawalToken] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
@@ -66,6 +68,15 @@ export function ZhiheExperience() {
     modalRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setModalOpen(false);
+      if (event.key === "Tab") {
+        const nodes = modalRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not([tabindex="-1"]):not(:disabled)');
+        if (!nodes?.length) return;
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        if (!modalRef.current?.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+        else if (event.shiftKey && (document.activeElement === first || document.activeElement === modalRef.current)) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && (document.activeElement === last || document.activeElement === modalRef.current)) { event.preventDefault(); first.focus(); }
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
@@ -74,13 +85,28 @@ export function ZhiheExperience() {
     };
   }, [modalOpen]);
 
-  const scrollToPreview = () =>
-    document.getElementById("preview")?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    if (!modalOpen) return;
+    if (status === 'success') document.getElementById('intent-title')?.focus();
+    else if (showEmail && status === 'idle') document.getElementById('email')?.focus();
+  }, [modalOpen, showEmail, status]);
+
+  function track(event: string) {
+    if (analytics) void fetch('/api/events', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({event,consent:true})}).catch(() => {});
+  }
+  const scrollToPreview = () => {
+    track('trial_start');
+    document.getElementById("preview")?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
 
   const openOffer = () => {
     setModalOpen(true);
     setShowEmail(false);
+    setEmail("");
+    setConsent(false);
+    setWithdrawalToken("");
     setStatus("idle");
+    track('price_view');
   };
 
   async function submitInterest(event: FormEvent<HTMLFormElement>) {
@@ -101,7 +127,12 @@ export function ZhiheExperience() {
           website: form.get("website") ?? "",
         }),
       });
-      setStatus(response.ok ? "success" : "error");
+      if (response.ok) {
+        const result = await response.json();
+        setWithdrawalToken(result.withdrawalToken ?? '');
+        setStatus('success');
+        track('interest_confirmed');
+      } else setStatus('error');
     } catch {
       setStatus("error");
     }
@@ -115,6 +146,7 @@ export function ZhiheExperience() {
           <span className="brand-latin">ZHIHE</span>
         </a>
         <div className="nav-links">
+          <a href="/learn">免费完整课</a>
           <a href="#curriculum">首季课程</a>
           <a href="#method">我们的方法</a>
           <button className="nav-cta" onClick={scrollToPreview}>
@@ -139,11 +171,10 @@ export function ZhiheExperience() {
             把亲密需求说清楚。
           </p>
           <div className="hero-actions">
-            <button className="primary-button" onClick={scrollToPreview}>
-              免费试听 3 分钟 <span aria-hidden="true">↘</span>
-            </button>
+            <a className="primary-button action-link" href="/learn">开始免费完整课 <span aria-hidden="true">→</span></a>
             <span className="quiet-note">非露骨内容 · 不记录练习答案</span>
           </div>
+          <p className="beta-note">现已开放第 1 课 · 约 6 分钟 · 无需注册</p>
         </div>
 
         <div className="hero-art" aria-label="两个人靠近时形成的交叠圆形">
@@ -192,7 +223,7 @@ export function ZhiheExperience() {
               <button
                 key={option.id}
                 className={`choice ${choice === option.id ? "selected" : ""}`}
-                onClick={() => setChoice(option.id)}
+                onClick={() => { if (!choice) track('trial_complete'); setChoice(option.id); }}
                 aria-pressed={choice === option.id}
               >
                 <span className="choice-dot" aria-hidden="true" />
@@ -227,6 +258,7 @@ export function ZhiheExperience() {
               <div className="preview-complete">
                 <span aria-hidden="true">✓</span>
                 你刚完成了第 1 个关系练习
+                <p><a href="/learn">继续完整课程：学会表达、练习与自查 →</a></p>
               </div>
             </div>
           ) : (
@@ -240,7 +272,7 @@ export function ZhiheExperience() {
           <p className="section-number">首季课程 / SEASON 01</p>
           <h2>从难开口，<br />到说得清。</h2>
           <p>
-            7 节核心短课，每节 5–8 分钟。可以独自学习，也可以把练习卡分享给伴侣。
+            第 1 课现已免费开放；其余 6 课为计划内容，尚未开放。可以独自学习，再决定是否与伴侣练习。
           </p>
         </div>
         <ol className="lesson-list">
@@ -248,10 +280,10 @@ export function ZhiheExperience() {
             <li key={number}>
               <span className="lesson-number">{number}</span>
               <div>
-                <h3>{title}</h3>
+                <h3>{number === '01' ? <a href="/learn">{title} →</a> : title}</h3>
                 <p>{description}</p>
               </div>
-              <span className="lesson-duration">5–8 MIN</span>
+              <span className="lesson-duration">{number === '01' ? '免费开放' : '计划中'}</span>
             </li>
           ))}
         </ol>
@@ -266,7 +298,7 @@ export function ZhiheExperience() {
           <article>
             <span className="method-index">A</span>
             <h3>证据有出处</h3>
-            <p>区分研究发现、专业共识与个人建议；正式课程上线前完成专业审阅。</p>
+            <p>课程附参考来源；目前为原创教育草稿，尚未经独立专业审阅，不宣称已验证的改善效果。</p>
           </article>
           <article>
             <span className="method-index">B</span>
@@ -289,10 +321,10 @@ export function ZhiheExperience() {
           <div className="offer-copy">
             <p className="section-number">创始会员 / FOUNDING ACCESS</p>
             <h2>把猜测，换成一次好好说话。</h2>
-            <p>首季 7 节短课 + 练习卡 · 一次购买 · 永久访问</p>
+            <p>计划首季 7 节短课 + 练习卡 · 拟采用一次购买、永久访问</p>
             <ul>
               <li>可独自学习，也可与一位伴侣共用</li>
-              <li>开放购买后 14 天内可申请退款</li>
+              <li>当前只做需求调研，未开放购买</li>
               <li>无订阅、无自动续费、无隐藏收费</li>
             </ul>
           </div>
@@ -302,11 +334,11 @@ export function ZhiheExperience() {
               <sup>¥</sup>
               <strong>199</strong>
             </div>
-            <span className="price-anchor">正式版计划价 ¥399</span>
+            <span className="price-anchor">未来课程意向价 · 当前免费内测</span>
             <button className="offer-button" onClick={openOffer}>
               登记购买意向 <span aria-hidden="true">→</span>
             </button>
-            <small>现在不会扣款。开放购买时只提醒一次。</small>
+            <small>现在不会扣款。可自愿留下联系方式供人工跟进。</small>
           </div>
         </div>
       </section>
@@ -319,7 +351,7 @@ export function ZhiheExperience() {
         <div className="faq-list">
           <details>
             <summary>这是成人视频或露骨内容吗？</summary>
-            <p>不是。知合专注成年人的关系沟通与亲密健康教育，采用文字、音频和非写实图示。</p>
+            <p>不是。当前免费课采用文字和互动练习，专注成年人的关系沟通。</p>
           </details>
           <details>
             <summary>一定要和伴侣一起学吗？</summary>
@@ -331,7 +363,7 @@ export function ZhiheExperience() {
           </details>
           <details>
             <summary>登记后会发生什么？</summary>
-            <p>这只是购买意向，不会扣款。正式开放时我们向你发送一次通知；未开放的意向将在 90 天后删除。</p>
+            <p>这只是购买意向，不会扣款。你可授权团队在未来课程开放时人工联系一次。当前没有自动邮件；登记成功后请保存撤回凭证。详见隐私说明。</p>
           </details>
         </div>
       </section>
@@ -344,9 +376,10 @@ export function ZhiheExperience() {
         <p>把亲密，讲清楚。</p>
         <div className="footer-meta">
           <span>© 2026 知合产品内测</span>
-          <a href="mailto:hello@zhihe.example">隐私与删除请求</a>
+          <a href="/privacy">隐私与撤回登记</a>
           <span>仅面向 18 岁以上成年人</span>
         </div>
+        <label className="analytics-choice"><input type="checkbox" checked={analytics} onChange={event => { const enabled = event.target.checked; setAnalytics(enabled); if(enabled) void fetch('/api/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'visit',consent:true})}).catch(()=>{}); }} />自愿允许本页匿名使用计数（不含答案、邮箱或个人标识，刷新后重置）</label>
       </footer>
 
       {modalOpen && (
@@ -372,8 +405,11 @@ export function ZhiheExperience() {
               <div className="success-state" aria-live="polite">
                 <span className="success-mark" aria-hidden="true">✓</span>
                 <p className="section-number">意向已登记</p>
-                <h2 id="intent-title">谢谢你认真对待这段关系。</h2>
-                <p>开放购买时，我们只发送一次提醒。</p>
+                <h2 id="intent-title" tabIndex={-1}>谢谢你认真对待这段关系。</h2>
+                <p>已收到本次请求，不会扣款。首次登记请保存下方撤回凭证；重复提交不会新增记录，请继续保留最初的凭证。</p>
+                <label htmlFor="receipt">本次撤回凭证</label>
+                <input id="receipt" className="receipt" readOnly value={withdrawalToken} onFocus={event => event.target.select()} />
+                <p><a href="/privacy">使用凭证撤回登记</a> · 凭证遗失时可由本地运营人员协助核对删除</p>
                 <button onClick={() => setModalOpen(false)}>回到课程</button>
               </div>
             ) : (
@@ -390,7 +426,7 @@ export function ZhiheExperience() {
                       className="primary-button"
                       onClick={() => setShowEmail(true)}
                     >
-                      愿意，开放时通知我
+                      愿意，留下联系意向
                     </button>
                     <button
                       className="secondary-button"
@@ -401,7 +437,7 @@ export function ZhiheExperience() {
                   </div>
                 ) : (
                   <form onSubmit={submitInterest} className="intent-form">
-                    <label htmlFor="email">接收一次开放提醒</label>
+                    <label htmlFor="email">用于一次人工跟进的邮箱</label>
                     <div className="email-row">
                       <input
                         id="email"
@@ -428,7 +464,7 @@ export function ZhiheExperience() {
                         onChange={(event) => setConsent(event.target.checked)}
                         required
                       />
-                      <span>我同意仅将邮箱用于一次开放提醒；可随时申请删除。</span>
+                      <span>我同意将邮箱用于未来课程开放时的一次人工联系，并已阅读<a href="/privacy" target="_blank" rel="noreferrer">隐私说明</a>；可通过撤回凭证删除。</span>
                     </label>
                     {status === "error" && (
                       <p className="form-error" role="alert">

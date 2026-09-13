@@ -1,34 +1,12 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { openDatabase } from "./sqlite-database.mjs";
 
 const templateRoot = new URL("../", import.meta.url);
 const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
 
-function createDatabase() {
-  const writes = [];
-  const statement = (query) => ({
-    bind(...values) {
-      return {
-        ...this,
-        async run() {
-          writes.push({ query, values });
-        },
-      };
-    },
-    async run() {},
-  });
-
-  return {
-    writes,
-    prepare: statement,
-    async batch(statements) {
-      for (const item of statements) await item.run();
-    },
-  };
-}
-
-async function fetchWorker(path = "/", init, database = createDatabase()) {
+async function fetchWorker(path = "/", init, database) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
@@ -58,8 +36,8 @@ test("server-renders the complete conversion page", async () => {
   const html = await response.text();
   assert.match(html, /<title>知合 ZHIHE｜把亲密，讲清楚<\/title>/i);
   assert.match(html, /不用猜/);
-  assert.match(html, /免费试听 3 分钟/);
-  assert.match(html, /首轮内测价/);
+  assert.match(html, /开始免费完整课/);
+  assert.match(html, /未来课程意向价/);
   assert.match(html, /199/);
   assert.match(html, /现在不会扣款/);
   assert.match(html, /不记录练习答案/);
@@ -86,8 +64,9 @@ test("removes starter artifacts and keeps the offer contract explicit", async ()
   await assert.doesNotReject(access(templateRoot));
 });
 
-test("persists a valid purchase intent without exposing its record", async () => {
-  const database = createDatabase();
+test("persists a valid purchase intent without exposing its record", async (context) => {
+  const database = openDatabase(":memory:");
+  context.after(() => database.close());
   const response = await fetchWorker(
     "/api/interest",
     {
@@ -108,13 +87,14 @@ test("persists a valid purchase intent without exposing its record", async () =>
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { ok: true });
-  assert.equal(database.writes.length, 1);
-  assert.equal(database.writes[0].values[1], "buyer@example.com");
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.match(body.withdrawalToken, /^[a-f0-9]{64}$/);
+  assert.equal(database.sqlite.prepare("SELECT email FROM purchase_intents").get().email, "buyer@example.com");
 });
 
 test("rejects malformed interest before touching the database", async () => {
-  const database = createDatabase();
+  const database = { prepare() { assert.fail("invalid input must not access SQL"); } };
   const response = await fetchWorker(
     "/api/interest",
     {
@@ -132,5 +112,4 @@ test("rejects malformed interest before touching the database", async () => {
   );
 
   assert.equal(response.status, 400);
-  assert.equal(database.writes.length, 0);
 });
